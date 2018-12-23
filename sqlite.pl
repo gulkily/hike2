@@ -8,16 +8,23 @@ use Data::Dumper;
 use 5.010;
 
 my $SqliteDbName = "index.sqlite3";
-my $SqliteDbName2 = "test.db";
+
 my $dbh;
+
+my $i = 0;
+while (-e "test$i.db") {
+	$i++;
+}
+my $SqliteDbName2 = "test$i.db";
 
 sub SqliteConnect {
 	$dbh = DBI->connect(
-		"dbi:SQLite:dbname=test.db",
+		"dbi:SQLite:dbname=index.sqlite3",
+		#"dbi:SQLite:dbname=test$i.db",
 		"",
 		"",
 		{ RaiseError => 1 },
-	) or die $DBI::errstr;
+	) or print($DBI::errstr);
 }
 
 #schema
@@ -141,16 +148,22 @@ sub SqliteMakeTables() {
 
 sub SqliteQuery {
 	my $query = shift;
-
 	chomp $query;
 
 	if ($query) {
 		my $sth = $dbh->prepare($query);
-		$sth->execute();
+		$sth->execute(@_);
+
+		my $aref = $sth->fetchall_arrayref();
+
 		$sth->finish();
 
-		return $sth;
+		return $aref;
 	}
 }
+
+SqliteConnect();
+
+#SqliteMakeTables();
 
 1;

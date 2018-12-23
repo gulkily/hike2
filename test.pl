@@ -17,8 +17,6 @@ my $dbh = DBI->connect(
 
 #SqliteMakeTables();
 
-my $test;
-
 # my $query = "INSERT INTO item(item_name, file_hash) VALUES(?, ?)";
 
 # my $sth = $dbh->prepare($query);
@@ -26,16 +24,21 @@ my $test;
 # $sth->finish();
 
 
-my $query = "SELECT file_hash, item_type FROM item ORDER BY file_hash";
-#my $query = "SELECT file_hash, item_type FROM item WHERE file_hash LIKE ?";
+#my $query = "SELECT file_hash, item_type FROM item ORDER BY file_hash";
+my $query = "SELECT file_hash, item_type FROM item WHERE file_hash LIKE ? AND file_hash LIKE ?";
 
-my $sth = $dbh->prepare($query);
+my $result = SqliteQuery($query, '%ab%', '%ba%');
+#my $result = SqliteQuery($query);
+#
+#my $sth = $dbh->prepare($query);
+##
+#$sth->execute();
+##
+#my $aref = $sth->fetchall_arrayref();
+#
+#$sth->finish();
 
-$sth->execute();
-
-my $aref = $sth->fetchall_arrayref();
-
-print Data::Dumper->Dump($aref);
+print Data::Dumper->Dump($result);
 
 # foreach ()
 
@@ -110,3 +113,36 @@ print Data::Dumper->Dump($aref);
 # 		print $_;
 # 	}
 # }
+
+
+sub DBGetVotesTable {
+	my $fileHash = shift;
+
+	my $query;
+
+	$query = "SELECT file_hash, ballot_time, vote_value, signed_by, vote_weight FROM vote_weighed;";
+
+	my $result = SqliteQuery($query);
+
+	return $result;
+}
+
+# sub FormatSha1 {
+# 	my $string = shift;
+
+# 	if (!$string) {
+# 		return 0;
+# 	}
+
+# 	if ($string =~ m/([a-fA-F0-9]{40})/) {
+# 		return lc; #todo untested
+# 	} else {
+# 		return 0;
+# 	}
+# }
+
+#my $votesTable = DBGetVotesTable();
+
+#print Data::Dumper->Dump($votesTable);
+
+
